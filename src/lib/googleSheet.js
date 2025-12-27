@@ -1,25 +1,29 @@
-// Lưu URL này vào file .env.local: NEXT_PUBLIC_GAS_URL=...
+
 // const GAS_URL = process.env.NEXT_PUBLIC_GAS_URL;
 
 export async function getLessons() {
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbwGBeqQuSX0loi1wsWs08AYfHDLE-_iEa_cTw5209HyPAlznFghFK62HLVLdGsFbPah/exec"
+  const GAS_URL = process.env.NEXT_PUBLIC_GAS_URL;
   try {
-    // Thêm redirect: 'follow' để xử lý việc chuyển hướng của Google
     const response = await fetch(GAS_URL, { 
       method: 'GET',
-      redirect: 'follow', 
-      cache: 'no-store' // Đảm bảo dữ liệu luôn mới nhất
+      
+      headers: {
+        'Accept': 'application/json',
+      },
+      // Cache trong 3600 giây (1 giờ)
+      next: { revalidate: 3600 }
     });
-    
-    const text = await response.text(); // Lấy text trước để debug nếu lỗi
-    try {
-      return JSON.parse(text);
-    } catch (e) {
-      console.error("Dữ liệu trả về không phải JSON:", text);
-      return [];
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data;
+
   } catch (error) {
+    
     console.error("Lỗi kết nối GAS:", error);
-    return [];
+    return []; 
   }
 }

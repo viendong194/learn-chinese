@@ -2,7 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import FillBlank from '@/components/FillBlank';
+import Matching from '@/components/Matching';
+import MCQ from '@/components/MCQ';
+import OrderTask from '@/components/OrderTask';
+
 
 export default function LessonClientPage({ lesson, allLessons }) {
   // Trạng thái mở khóa riêng biệt
@@ -18,20 +22,45 @@ export default function LessonClientPage({ lesson, allLessons }) {
     );
   }
 
+  // Parse JSON từ Google Sheets (Lưu ý: Sheet trả về chuỗi nên cần JSON.parse)
+  let exerciseData = null;
+  try {
+    exerciseData = typeof lesson.tasks === 'string' ? JSON.parse(lesson.tasks) : lesson.tasks;
+  } catch (e) {
+    console.error("Lỗi parse bài tập JSON");
+  }
+
   // Tìm bài trước và bài sau trong danh sách
   const currentIndex = allLessons.findIndex(l => l.id === lesson.id);
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
   // Logic mở khóa
-  const handleUnlockScript = () => {
-    window.open(lesson.shopeeLinkScript, '_blank');
-    setScriptUnlocked(true);
-  };
+
 
   const handleUnlockExercise = () => {
     window.open(lesson.shopeeLinkExercise, '_blank');
     setExerciseUnlocked(true);
+  };
+
+  const handleUnlockAndGo = () => {
+    if (!lesson.shopeeLinkDesc) {
+      alert("Link Shopee chưa được cập nhật!");
+      return;
+    }
+    
+    setScriptUnlocked(true);
+    // Mở link Shopee ở tab mới
+    window.open(lesson.shopeeLinkDesc, '_blank');
+  };
+
+  const handleDownload = () => {
+    // lesson.script bây giờ đang chứa link: https://drive.google.com/uc?export=download&id=...
+    if (lesson.script) {
+      window.open(lesson.script, '_blank');
+    } else {
+      alert("Không tìm thấy link tài liệu!");
+    }
   };
 
   return (
@@ -56,52 +85,80 @@ export default function LessonClientPage({ lesson, allLessons }) {
 
         <div className="space-y-12">
           {/* PHẦN 1: SCRIPT VIDEO */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="p-1.5 bg-blue-100 text-blue-700 rounded-md font-bold text-[10px] uppercase tracking-widest">Phần 1</span>
-              <h2 className="text-xl font-bold text-gray-800">Script chi tiết</h2>
-            </div>
+          <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 border-b border-gray-50 bg-gray-50/50">
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  📂 Tài liệu bài giảng
+                </h3>
+              </div>
 
-            {!scriptUnlocked ? (
-              <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center transition-all">
-                <p className="text-gray-600 mb-5 font-medium">Click Shopee để xem nội dung Script</p>
-                <button
-                  onClick={handleUnlockScript}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold shadow-lg transition-transform active:scale-95"
-                >
-                  🛒 Mở khóa Script
-                </button>
+              <div className="p-8 text-center">
+                {!scriptUnlocked ? (
+                  // Giao diện khi CHƯA click Shopee
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">🔒</span>
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      Vui lòng click ủng hộ qua Shopee để mở khóa link tải Script (File .txt)
+                    </p>
+                    <button
+                      onClick={handleUnlockAndGo}
+                      disabled={scriptUnlocked}
+                      className="bg-[#ee4d2d] text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition disabled:bg-gray-400 flex items-center gap-2 mx-auto"
+                    >
+                      {scriptUnlocked ? "Đang xác thực..." : "🛒 Mở khóa qua Shopee"}
+                    </button>
+                  </div>
+                ) : (
+                  // Giao diện khi ĐÃ click Shopee
+                  <div className="space-y-4 animate-in fade-in zoom-in duration-500">
+                    <div className="bg-green-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">🔓</span>
+                    </div>
+                    <p className="text-green-600 font-medium">Đã mở khóa thành công!</p>
+                    <button
+                      onClick={handleDownload}
+                      className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 shadow-lg flex items-center gap-2 mx-auto"
+                    >
+                      📥 Tải xuống Script (.txt)
+                    </button>
+                    <p className="text-xs text-gray-400">Cảm ơn bạn đã ủng hộ!</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="bg-blue-50/40 p-6 rounded-2xl border border-blue-100 text-gray-700 leading-relaxed animate-in fade-in slide-in-from-top-2 duration-500">
-                <p className="whitespace-pre-wrap italic">"{lesson.script}"</p>
-              </div>
-            )}
-          </section>
+            </section>
 
           {/* PHẦN 2: BÀI TẬP THỰC HÀNH */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="p-1.5 bg-green-100 text-green-700 rounded-md font-bold text-[10px] uppercase tracking-widest">Phần 2</span>
-              <h2 className="text-xl font-bold text-gray-800">Bài tập thực hành</h2>
-            </div>
+          <section className="mt-12">
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span className="bg-orange-500 text-white p-1 rounded">📝</span> Bài tập củng cố
+        </h2>
 
-            {!exerciseUnlocked ? (
-              <div className="bg-orange-50 border-2 border-dashed border-orange-200 rounded-2xl p-8 text-center transition-all">
-                <p className="text-orange-800/70 mb-5 font-medium">Làm bài tập để củng cố kiến thức</p>
-                <button
-                  onClick={handleUnlockExercise}
-                  className="bg-[#ee4d2d] hover:bg-[#d73211] text-white px-8 py-3 rounded-full font-bold shadow-lg transition-transform active:scale-95"
-                >
-                  🛒 Mở khóa Bài tập
-                </button>
-              </div>
-            ) : (
-              <div className="bg-green-50 p-6 rounded-2xl border border-green-100 text-gray-800 animate-in fade-in slide-in-from-top-2 duration-500 shadow-sm">
-                <div className="whitespace-pre-wrap font-medium">{lesson.exercise}</div>
-              </div>
-            )}
-          </section>
+        {!exerciseUnlocked ? (
+          <div className="bg-orange-50 border-2 border-dashed border-orange-200 rounded-2xl p-10 text-center">
+            <button
+              onClick={handleUnlockExercise}
+              className="bg-[#ee4d2d] text-white px-10 py-4 rounded-full font-bold shadow-xl hover:scale-105 transition"
+            >
+              🛒 Mở khóa bài tập qua Shopee
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+            {exerciseData?.exercises?.map((item, index) => {
+              const uniqueKey = `ex-${index}`;
+              switch (item.type) {
+                case 'fill_blank': return <FillBlank key={uniqueKey} data={item} />;
+                case 'mcq':        return <MCQ key={uniqueKey} data={item} />;
+                case 'matching':   return <Matching key={uniqueKey} data={item} />;
+                case 'order':      return <OrderTask key={uniqueKey} data={item} />;
+                default: return null;
+              }
+            })}
+          </div>
+        )}
+      </section>
         </div>
 
         {/* 3. ĐIỀU HƯỚNG BÀI HỌC */}

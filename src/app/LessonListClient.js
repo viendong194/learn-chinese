@@ -31,13 +31,13 @@ export default function LessonListClient({ allLessons }) {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* THANH TÌM KIẾM (STIKY) */}
       <div className="bg-white shadow-sm border-b sticky top-0 z-20">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <h1 className="text-xl font-black text-gray-800 uppercase tracking-tight">
-              Thư viện bài học ({filteredLessons.length})
+              mr.chinesechannel
             </h1>
             
             <div className="relative w-full md:max-w-md">
@@ -137,6 +137,6 @@ export default function LessonListClient({ allLessons }) {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
