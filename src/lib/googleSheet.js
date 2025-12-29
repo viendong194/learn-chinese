@@ -11,7 +11,7 @@ export async function getLessons() {
         'Accept': 'application/json',
       },
       // Cache trong 3600 giây (1 giờ)
-      next: { revalidate: 3600 }
+      next: { revalidate: 60 }
     });
 
     if (!response.ok) {
