@@ -38,7 +38,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Deploy on Cloudpages
 Xóa các bản build cũ: rm -rf .next .vercel
 
-Build lại: npx @cloudflare/next-on-pages --legacy-peer-deps
+Build lại: npx @cloudflare/next-on-pages
 
 Deploy với thư mục static: npx wrangler pages deploy .vercel/output/static
 
