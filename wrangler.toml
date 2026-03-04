@@ -1,0 +1,14 @@
+# Cloudflare Pages + Next.js (next-on-pages)
+# Tạo KV namespace: npx wrangler kv namespace create VOCAB_PAYMENTS
+# Lấy id từ dashboard hoặc output của lệnh trên, thay vào dưới đây.
+
+name = "learn-chinese-app"
+compatibility_date = "2024-01-01"
+
+# Bind KV cho lưu mã thanh toán SePay (mở khóa từ vựng)
+[[kv_namespaces]]
+binding = "VOCAB_PAYMENTS"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# preview_id dùng khi chạy wrangler dev (tùy chọn)
+# preview_id = "REPLACE_WITH_PREVIEW_KV_ID"

@@ -44,6 +44,25 @@ Deploy với thư mục static: npx wrangler pages deploy .vercel/output/static
 
 Kiểm tra: Truy cập thẳng vào link gốc https://learn-chinese-e7e.pages.dev.
 
+## SePay + KV (xác nhận thanh toán từ vựng HSK)
+
+1. **Tạo KV namespace (Cloudflare Dashboard hoặc Wrangler):**
+   ```bash
+   npx wrangler kv namespace create VOCAB_PAYMENTS
+   ```
+   Copy `id` từ output, mở `wrangler.toml` và thay `REPLACE_WITH_YOUR_KV_NAMESPACE_ID` bằng id đó.
+
+2. **Cấu hình SePay webhook:**
+   - Vào [SePay WebHooks](https://my.sepay.vn/webhooks) → Thêm webhook.
+   - **URL:** `https://your-domain.com/api/webhooks/sepay`
+   - **Loại xác thực:** Apikey. Tạo API Key trong SePay, sau đó thêm biến môi trường trên Cloudflare Pages: `SEPAY_WEBHOOK_API_KEY` = API Key đó.
+   - **Sự kiện:** Chọn “Tiền vào” (money in).
+
+3. **Biến môi trường trên Cloudflare Pages:**
+   - `SEPAY_WEBHOOK_API_KEY`: API Key từ SePay (để webhook xác thực).
+
+4. **Luồng người dùng:** Người dùng chuyển khoản 50.000đ với nội dung **TVHSK-XXXXXXXX** (mã hiển thị trong modal). SePay gửi webhook → API lưu mã vào KV → Người dùng nhấn “Kiểm tra & Mở khóa” → API kiểm tra KV và trả về unlocked.
+
 ## prompt:
 
 Dựa trên nội dung tiếng Trung sau đây: "${content}"

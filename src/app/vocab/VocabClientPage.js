@@ -4,6 +4,9 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 
 const STORAGE_KEY = 'hsk-vocab-learned';
+const PREMIUM_KEY = 'hsk-vocab-premium';
+const FREE_CARD_LIMIT = 10;
+const UNLOCK_PRICE = 50000;
 
 function getWordId(level, item) {
   return `${level}-${item.stt}`;
@@ -24,6 +27,22 @@ function saveLearnedIds(ids) {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
+  } catch (_) {}
+}
+
+function isPremiumUnlocked() {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(PREMIUM_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function setPremiumUnlocked() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(PREMIUM_KEY, 'true');
   } catch (_) {}
 }
 
@@ -51,10 +70,27 @@ export default function VocabClientPage({ levels, vocab }) {
   const [speaking, setSpeaking] = useState(false);
   const [learnedIds, setLearnedIds] = useState(() => new Set());
   const [hideLearned, setHideLearned] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paymentCode, setPaymentCode] = useState('');
+  const [unlockCodeInput, setUnlockCodeInput] = useState('');
+  const [checkLoading, setCheckLoading] = useState(false);
+  const [checkError, setCheckError] = useState('');
 
   useEffect(() => {
     setLearnedIds(loadLearnedIds());
+    setIsPremium(isPremiumUnlocked());
   }, []);
+
+  useEffect(() => {
+    if (showPaywall && !paymentCode) {
+      const id = Math.random().toString(36).slice(2, 10).toUpperCase();
+      const code = `TVHSK-${id}`;
+      setPaymentCode(code);
+      setUnlockCodeInput(code);
+      setCheckError('');
+    }
+  }, [showPaywall, paymentCode]);
 
   const speak = useCallback((text) => {
     if (!text || typeof window === 'undefined' || !window.speechSynthesis) return;
@@ -85,8 +121,14 @@ export default function VocabClientPage({ levels, vocab }) {
     return rawList.filter((item) => !learnedIds.has(getWordId(selectedLevel, item)));
   }, [rawList, hideLearned, learnedIds, selectedLevel]);
 
-  const current = list[index];
-  const total = list.length;
+  const listForDisplay = useMemo(() => {
+    if (isPremium) return list;
+    return list.slice(0, FREE_CARD_LIMIT);
+  }, [list, isPremium]);
+
+  const current = listForDisplay[index];
+  const total = listForDisplay.length;
+  const isLocked = !isPremium && list.length > FREE_CARD_LIMIT;
 
   const learnedCount = useMemo(() => {
     return rawList.filter((item) => learnedIds.has(getWordId(selectedLevel, item))).length;
@@ -113,8 +155,43 @@ export default function VocabClientPage({ levels, vocab }) {
     setFlipped(false);
   };
   const goNext = () => {
+    if (isLocked && index === FREE_CARD_LIMIT - 1) {
+      setShowPaywall(true);
+      return;
+    }
     setIndex((i) => (i >= total - 1 ? 0 : i + 1));
     setFlipped(false);
+  };
+
+  const handleUnlock = () => {
+    setPremiumUnlocked();
+    setIsPremium(true);
+    setShowPaywall(false);
+  };
+
+  const handleCheckUnlock = async () => {
+    const code = unlockCodeInput.trim();
+    if (!code) {
+      setCheckError('Vui lòng nhập mã chuyển khoản.');
+      return;
+    }
+    setCheckLoading(true);
+    setCheckError('');
+    try {
+      const res = await fetch(`/api/vocab/check-unlock?code=${encodeURIComponent(code)}`);
+      const data = await res.json();
+      if (data.unlocked) {
+        setPremiumUnlocked();
+        setIsPremium(true);
+        setShowPaywall(false);
+      } else {
+        setCheckError(data.error || 'Chưa nhận được thanh toán. Vui lòng thử lại sau vài phút.');
+      }
+    } catch (e) {
+      setCheckError('Lỗi kết nối. Vui lòng thử lại.');
+    } finally {
+      setCheckLoading(false);
+    }
   };
 
   if (!current) {
@@ -185,6 +262,21 @@ export default function VocabClientPage({ levels, vocab }) {
             <span className="text-sm font-medium text-gray-600">Xáo trộn</span>
           </label>
         </div>
+
+        {isLocked && (
+          <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-sm text-amber-800">
+              Bạn đang dùng thử <strong>{FREE_CARD_LIMIT} thẻ đầu</strong>. Mở khóa toàn bộ với <strong>{UNLOCK_PRICE.toLocaleString('vi-VN')}đ</strong>.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowPaywall(true)}
+              className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-700"
+            >
+              Mở khóa ngay
+            </button>
+          </div>
+        )}
 
         {/* Learned filter + count */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
@@ -316,6 +408,64 @@ export default function VocabClientPage({ levels, vocab }) {
           </button>
         </div>
       </div>
+
+      {/* Paywall Modal */}
+      {showPaywall && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowPaywall(false)}>
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Mở khóa toàn bộ từ vựng HSK</h3>
+            <p className="text-gray-600 text-sm mb-4">
+              Chuyển khoản <strong>{UNLOCK_PRICE.toLocaleString('vi-VN')}đ</strong> với nội dung bên dưới. Sau khi chuyển, nhấn &quot;Kiểm tra &amp; Mở khóa&quot; để kích hoạt (thường trong 1–2 phút).
+            </p>
+            <div className="flex justify-center mb-3">
+              <img
+                src={`https://img.vietqr.io/image/VCB-9563038597-compact2.jpg?amount=${UNLOCK_PRICE}&addInfo=${encodeURIComponent(paymentCode || 'TVHSK')}&accountName=MR%20CHINESE`}
+                alt="QR chuyển khoản"
+                className="w-48 h-48 object-contain border border-gray-200 rounded-xl"
+              />
+            </div>
+            <p className="text-xs text-gray-600 text-center mb-1">
+              Nội dung chuyển khoản (bắt buộc):
+            </p>
+            <p className="text-center font-mono font-bold text-orange-600 mb-4 break-all px-2">
+              {paymentCode || '...'}
+            </p>
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mã của bạn (sau khi đã chuyển)</label>
+              <input
+                type="text"
+                value={unlockCodeInput}
+                onChange={(e) => setUnlockCodeInput(e.target.value)}
+                placeholder="TVHSK-XXXXXXXX"
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
+            {checkError && (
+              <p className="text-sm text-red-600 mb-3">{checkError}</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowPaywall(false)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50"
+              >
+                Để sau
+              </button>
+              <button
+                type="button"
+                onClick={handleCheckUnlock}
+                disabled={checkLoading}
+                className="flex-1 py-2.5 rounded-xl bg-orange-600 text-white font-bold hover:bg-orange-700 disabled:opacity-60"
+              >
+                {checkLoading ? 'Đang kiểm tra...' : 'Kiểm tra & Mở khóa'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
