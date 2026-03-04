@@ -1,13 +1,33 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+
+function SpeakerIcon({ className }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+    </svg>
+  );
+}
 
 export default function VocabClientPage({ levels, vocab }) {
   const [selectedLevel, setSelectedLevel] = useState(levels[0] || 'HSK 1');
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [shuffle, setShuffle] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+
+  const speak = useCallback((text) => {
+    if (!text || typeof window === 'undefined' || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN';
+    u.rate = 0.9;
+    u.onstart = () => setSpeaking(true);
+    u.onend = u.onerror = () => setSpeaking(false);
+    window.speechSynthesis.speak(u);
+  }, []);
 
   const list = useMemo(() => {
     const arr = vocab[selectedLevel] || [];
@@ -110,7 +130,17 @@ export default function VocabClientPage({ levels, vocab }) {
               style={{ backfaceVisibility: 'hidden' }}
             >
               <p className="text-6xl md:text-7xl font-bold text-gray-900 mb-3">{current.word}</p>
-              <p className="text-xl text-orange-600 font-medium">{current.pinyin}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xl text-orange-600 font-medium">{current.pinyin}</p>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); speak(current.word); }}
+                  className={`p-2 rounded-full transition-colors ${speaking ? 'bg-orange-100 text-orange-600' : 'text-orange-500 hover:bg-orange-50'}`}
+                  aria-label="Phát âm"
+                >
+                  <SpeakerIcon className="w-6 h-6" />
+                </button>
+              </div>
               {current.type && (
                 <span className="mt-2 text-xs text-gray-400 font-medium">{current.type}</span>
               )}
@@ -126,7 +156,17 @@ export default function VocabClientPage({ levels, vocab }) {
               }}
             >
               <p className="text-4xl md:text-5xl font-bold mb-2">{current.word}</p>
-              <p className="text-lg text-orange-100 mb-4">{current.pinyin}</p>
+              <div className="flex items-center gap-2 mb-4">
+                <p className="text-lg text-orange-100">{current.pinyin}</p>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); speak(current.word); }}
+                  className={`p-1.5 rounded-full transition-colors ${speaking ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                  aria-label="Phát âm"
+                >
+                  <SpeakerIcon className="w-5 h-5 text-white" />
+                </button>
+              </div>
               <p className="text-2xl font-bold mb-4">{current.meaning}</p>
               {current.tip && (
                 <p className="text-sm text-orange-100/90 leading-relaxed text-center max-h-24 overflow-y-auto">
