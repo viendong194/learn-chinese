@@ -1,12 +1,44 @@
 "use client";
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import Link from 'next/link';
+
+const STORAGE_KEY = 'hsk-vocab-learned';
+
+function getWordId(level, item) {
+  return `${level}-${item.stt}`;
+}
+
+function loadLearnedIds() {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveLearnedIds(ids) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
+  } catch (_) {}
+}
 
 function SpeakerIcon({ className }) {
   return (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden>
       <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
   );
 }
@@ -17,6 +49,12 @@ export default function VocabClientPage({ levels, vocab }) {
   const [flipped, setFlipped] = useState(false);
   const [shuffle, setShuffle] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [learnedIds, setLearnedIds] = useState(() => new Set());
+  const [hideLearned, setHideLearned] = useState(false);
+
+  useEffect(() => {
+    setLearnedIds(loadLearnedIds());
+  }, []);
 
   const speak = useCallback((text) => {
     if (!text || typeof window === 'undefined' || !window.speechSynthesis) return;
@@ -29,7 +67,7 @@ export default function VocabClientPage({ levels, vocab }) {
     window.speechSynthesis.speak(u);
   }, []);
 
-  const list = useMemo(() => {
+  const rawList = useMemo(() => {
     const arr = vocab[selectedLevel] || [];
     if (shuffle) {
       const copy = [...arr];
@@ -42,8 +80,33 @@ export default function VocabClientPage({ levels, vocab }) {
     return arr;
   }, [selectedLevel, vocab, shuffle]);
 
+  const list = useMemo(() => {
+    if (!hideLearned) return rawList;
+    return rawList.filter((item) => !learnedIds.has(getWordId(selectedLevel, item)));
+  }, [rawList, hideLearned, learnedIds, selectedLevel]);
+
   const current = list[index];
   const total = list.length;
+
+  const learnedCount = useMemo(() => {
+    return rawList.filter((item) => learnedIds.has(getWordId(selectedLevel, item))).length;
+  }, [rawList, learnedIds, selectedLevel]);
+
+  const isCurrentLearned = current ? learnedIds.has(getWordId(selectedLevel, current)) : false;
+
+  const toggleLearned = useCallback((e) => {
+    e?.stopPropagation();
+    if (!current) return;
+    const id = getWordId(selectedLevel, current);
+    setLearnedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      saveLearnedIds(next);
+      return next;
+    });
+    if (hideLearned && index >= total - 1) setIndex(Math.max(0, total - 2));
+  }, [current, selectedLevel, hideLearned, total, index]);
 
   const goPrev = () => {
     setIndex((i) => (i <= 0 ? total - 1 : i - 1));
@@ -55,10 +118,27 @@ export default function VocabClientPage({ levels, vocab }) {
   };
 
   if (!current) {
+    const allLearned = hideLearned && list.length === 0 && rawList.length > 0;
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <p className="text-gray-500 mb-4">Chưa có dữ liệu từ vựng. Chạy: node scripts/excel-to-json.js</p>
-        <Link href="/" className="text-orange-600 font-medium hover:underline">← Về trang chủ</Link>
+        {allLearned ? (
+          <>
+            <p className="text-gray-700 font-medium mb-2">Bạn đã thuộc hết từ trong cấp độ này!</p>
+            <p className="text-gray-500 text-sm mb-4">Tắt &quot;Chỉ xem chưa thuộc&quot; để ôn lại toàn bộ.</p>
+            <button
+              type="button"
+              onClick={() => { setHideLearned(false); setIndex(0); }}
+              className="px-4 py-2 bg-orange-600 text-white rounded-xl font-medium hover:bg-orange-700"
+            >
+              Xem tất cả
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="text-gray-500 mb-4">Chưa có dữ liệu từ vựng. Chạy: node scripts/excel-to-json.js</p>
+            <Link href="/" className="text-orange-600 font-medium hover:underline">← Về trang chủ</Link>
+          </>
+        )}
       </div>
     );
   }
@@ -106,14 +186,49 @@ export default function VocabClientPage({ levels, vocab }) {
           </label>
         </div>
 
+        {/* Learned filter + count */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <p className="text-gray-500 text-sm">
+            Đã thuộc: <span className="font-bold text-orange-600">{learnedCount}</span> / {rawList.length}
+          </p>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hideLearned}
+              onChange={(e) => {
+                setHideLearned(e.target.checked);
+                setIndex(0);
+              }}
+              className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+            />
+            <span className="text-sm font-medium text-gray-600">Chỉ xem chưa thuộc</span>
+          </label>
+        </div>
+
         {/* Counter */}
         <p className="text-center text-gray-500 text-sm mb-4">
           {index + 1} / {total}
         </p>
 
+        {/* Đã thuộc button */}
+        <div className="flex justify-center mb-4">
+          <button
+            type="button"
+            onClick={toggleLearned}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              isCurrentLearned
+                ? 'bg-green-500 text-white shadow-md'
+                : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-green-400 hover:bg-green-50 hover:text-green-700'
+            }`}
+          >
+            <CheckIcon className="w-5 h-5" />
+            {isCurrentLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}
+          </button>
+        </div>
+
         {/* Flashcard */}
         <div
-          className="relative aspect-[4/3] max-h-[320px] cursor-pointer"
+          className="relative aspect-[4/3] max-h-[320px] w-full max-w-md mx-auto cursor-pointer"
           style={{ perspective: '1000px' }}
           onClick={() => setFlipped((f) => !f)}
         >
