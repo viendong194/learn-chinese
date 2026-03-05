@@ -11,7 +11,7 @@ export default function Header() {
     { name: "Mua sắm", href: "#" },
     { name: "Tài liệu ôn thi HSK", href: "#" },
     { name: "Giáo trình", href: "#" },
-    { name: "Liên hệ", href: "#" },
+    { name: "Liên hệ", href: "/contact" },
   ];
 
   return (
