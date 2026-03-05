@@ -59,7 +59,7 @@ export default function LessonClientPage({ lesson, allLessons }) {
 
   // 👉 VietQR config
   const vietqrUrl =
-    "https://img.vietqr.io/image/VCB-9563038597-compact.png?addInfo=Ung%20ho%20PingpongChinese";
+    "https://img.vietqr.io/image/ICB-106883335692-compact.png?addInfo=Ung%20ho%20PingpongChinese";
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20 selection:bg-blue-100">
