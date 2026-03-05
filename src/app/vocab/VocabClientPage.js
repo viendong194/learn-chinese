@@ -446,6 +446,9 @@ export default function VocabClientPage({ levels, vocab }) {
                 placeholder="SEVQR-XXXXXXXX"
                 className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
               />
+              <p className="text-xs text-gray-500 mt-1.5">
+                Một mã dùng được tối đa 3 thiết bị (PC, điện thoại, máy tính khác…). Đã thanh toán thì nhập đúng mã trên thiết bị mới để kích hoạt.
+              </p>
             </div>
             {checkError && (
               <p className="text-sm text-red-600 mb-3">{checkError}</p>

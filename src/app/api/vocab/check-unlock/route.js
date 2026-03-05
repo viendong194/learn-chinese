@@ -9,6 +9,8 @@ export const runtime = 'edge';
 
 const COOKIE_NAME = 'vocab_premium';
 const SESSION_PREFIX = 'premium_session:';
+const ACTIVATIONS_PREFIX = 'unlock_activations:';
+const MAX_DEVICES = 3; // Tối đa 3 thiết bị được kích hoạt cho 1 mã thanh toán
 // Trả 1 lần = dùng vĩnh viễn: cookie 10 năm, KV không hết hạn
 const COOKIE_MAX_AGE = 10 * 365 * 24 * 60 * 60; // 10 năm (giây)
 
@@ -55,6 +57,21 @@ export async function GET(request) {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     }
+
+    // Giới hạn số thiết bị: 1 mã chỉ kích hoạt tối đa MAX_DEVICES lần (tránh share mã)
+    const activationsKey = `${ACTIVATIONS_PREFIX}${cleanCode}`;
+    const activationsRaw = await kv.get(activationsKey);
+    const activations = activationsRaw ? parseInt(activationsRaw, 10) : 0;
+    if (activations >= MAX_DEVICES) {
+      return new Response(
+        JSON.stringify({
+          unlocked: false,
+          error: `Mã này đã được kích hoạt trên đủ ${MAX_DEVICES} thiết bị. Liên hệ hỗ trợ nếu cần thêm.`,
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    await kv.put(activationsKey, String(activations + 1));
 
     // Tạo session vĩnh viễn: không set expirationTtl → KV lưu mãi đến khi xóa
     const bytes = new Uint8Array(24);
