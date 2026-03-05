@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 
 const STORAGE_KEY = 'hsk-vocab-learned';
-const PREMIUM_KEY = 'hsk-vocab-premium';
 const FREE_CARD_LIMIT = 10;
 const UNLOCK_PRICE = 50000;
 
@@ -27,22 +26,6 @@ function saveLearnedIds(ids) {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
-  } catch (_) {}
-}
-
-function isPremiumUnlocked() {
-  if (typeof window === 'undefined') return false;
-  try {
-    return window.localStorage.getItem(PREMIUM_KEY) === 'true';
-  } catch {
-    return false;
-  }
-}
-
-function setPremiumUnlocked() {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(PREMIUM_KEY, 'true');
   } catch (_) {}
 }
 
@@ -71,6 +54,7 @@ export default function VocabClientPage({ levels, vocab }) {
   const [learnedIds, setLearnedIds] = useState(() => new Set());
   const [hideLearned, setHideLearned] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [premiumLoading, setPremiumLoading] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
   const [paymentCode, setPaymentCode] = useState('');
   const [unlockCodeInput, setUnlockCodeInput] = useState('');
@@ -79,7 +63,23 @@ export default function VocabClientPage({ levels, vocab }) {
 
   useEffect(() => {
     setLearnedIds(loadLearnedIds());
-    setIsPremium(isPremiumUnlocked());
+  }, []);
+
+  // Lấy trạng thái premium từ server (cookie + KV), không dùng localStorage
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/vocab/status', { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setIsPremium(!!data.premium);
+      })
+      .catch(() => {
+        if (!cancelled) setIsPremium(false);
+      })
+      .finally(() => {
+        if (!cancelled) setPremiumLoading(false);
+      });
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -164,7 +164,6 @@ export default function VocabClientPage({ levels, vocab }) {
   };
 
   const handleUnlock = () => {
-    setPremiumUnlocked();
     setIsPremium(true);
     setShowPaywall(false);
   };
@@ -178,10 +177,9 @@ export default function VocabClientPage({ levels, vocab }) {
     setCheckLoading(true);
     setCheckError('');
     try {
-      const res = await fetch(`/api/vocab/check-unlock?code=${encodeURIComponent(code)}`);
+      const res = await fetch(`/api/vocab/check-unlock?code=${encodeURIComponent(code)}`, { credentials: 'include' });
       const data = await res.json();
       if (data.unlocked) {
-        setPremiumUnlocked();
         setIsPremium(true);
         setShowPaywall(false);
       } else {
@@ -265,16 +263,22 @@ export default function VocabClientPage({ levels, vocab }) {
 
         {isLocked && (
           <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 flex-wrap">
-            <p className="text-sm text-amber-800">
-              Bạn đang dùng thử <strong>{FREE_CARD_LIMIT} thẻ đầu</strong>. Mở khóa toàn bộ với <strong>{UNLOCK_PRICE.toLocaleString('vi-VN')}đ</strong>.
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowPaywall(true)}
-              className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-700"
-            >
-              Mở khóa ngay
-            </button>
+            {premiumLoading ? (
+              <p className="text-sm text-amber-800">Đang kiểm tra quyền...</p>
+            ) : (
+              <>
+                <p className="text-sm text-amber-800">
+                  Bạn đang dùng thử <strong>{FREE_CARD_LIMIT} thẻ đầu</strong>. Mở khóa toàn bộ với <strong>{UNLOCK_PRICE.toLocaleString('vi-VN')}đ</strong>.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowPaywall(true)}
+                  className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-700"
+                >
+                  Mở khóa ngay
+                </button>
+              </>
+            )}
           </div>
         )}
 
