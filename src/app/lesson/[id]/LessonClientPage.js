@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import FillBlank from '@/components/FillBlank';
 import Matching from '@/components/Matching';
@@ -10,11 +10,6 @@ import OrderTask from '@/components/OrderTask';
 export default function LessonClientPage({ lesson, allLessons }) {
   const [scriptUnlocked, setScriptUnlocked] = useState(false);
   const [exerciseUnlocked, setExerciseUnlocked] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setIsMobile(/Android|iPhone|iPad/i.test(navigator.userAgent));
-  }, []);
 
   const exerciseData = useMemo(() => {
     if (!lesson?.tasks) return null;
@@ -56,10 +51,6 @@ export default function LessonClientPage({ lesson, allLessons }) {
     if (lesson.script) window.open(lesson.script, '_blank');
     else alert("Không tìm thấy link tài liệu!");
   };
-
-  // 👉 VietQR config
-  const vietqrUrl =
-    "https://img.vietqr.io/image/ICB-106883335692-compact.png?addInfo=Ung%20ho%20PingpongChinese";
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20 selection:bg-blue-100">
@@ -141,40 +132,21 @@ export default function LessonClientPage({ lesson, allLessons }) {
             )}
           </section>
 
-          {/* 👉 DONATE SECTION (ĐÃ SỬA) */}
+          {/* Link Từ vựng HSK */}
           <section className="bg-white rounded-[2.5rem] p-8 border shadow-sm">
-            <div className="flex flex-col md:flex-row items-center gap-10">
+            <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-1 text-center md:text-left">
-                <h3 className="text-xl font-bold mb-3">☕ Ủng hộ tác giả</h3>
+                <h3 className="text-xl font-bold mb-2">📚 Từ vựng HSK</h3>
                 <p className="text-gray-500 text-sm">
-                  Nếu bạn thấy bài học hữu ích, mời mình một ly cà phê nhé!
+                  Học từ vựng HSK 1–6 bằng flashcard, có phát âm và đánh dấu đã thuộc.
                 </p>
               </div>
-
-              <div className="flex-shrink-0">
-                <div className="bg-white p-3 rounded-2xl shadow border transform hover:scale-105 transition">
-                  {isMobile ? (
-                    <a
-                      href={vietqrUrl}
-                      className="w-36 h-36 md:w-40 md:h-40 flex items-center justify-center bg-blue-600 text-white rounded-xl text-center font-bold"
-                    >
-                      Mở app<br />ngân hàng
-                    </a>
-                  ) : (
-                    <img
-                      src="/images/qr-code.png"
-                      alt="QR Donation"
-                      className="w-36 h-36 md:w-40 md:h-40 object-contain"
-                    />
-                  )}
-
-                  <div className="text-center mt-3">
-                    <span className="text-[10px] font-black bg-gray-100 px-3 py-1 rounded-full">
-                      {isMobile ? "Chuyển khoản nhanh" : "Quét mã QR"}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <Link
+                href="/vocab"
+                className="flex-shrink-0 px-8 py-4 rounded-2xl bg-orange-600 text-white font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-200"
+              >
+                Vào học từ vựng →
+              </Link>
             </div>
           </section>
         </div>
