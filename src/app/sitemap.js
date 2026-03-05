@@ -1,6 +1,6 @@
 import { getLessons } from '@/lib/googleSheet';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrchinesechannel.com';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrchinese.viendong.online/';
 
 export default async function sitemap() {
   const lessons = await getLessons();
@@ -27,6 +27,12 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/contact`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.5,
     },
     ...lessonUrls,
   ];
