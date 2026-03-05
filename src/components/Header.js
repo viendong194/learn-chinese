@@ -7,6 +7,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
+    { name: "Từ vựng HSK", href: "/vocab" },
     { name: "Mua sắm", href: "#" },
     { name: "Tài liệu ôn thi HSK", href: "#" },
     { name: "Giáo trình", href: "#" },
@@ -24,15 +25,20 @@ export default function Header() {
         {/* Desktop Menu */}
         <nav className="hidden md:flex items-center gap-8">
           {menuItems.map((item) => (
-            <div key={item.name} className="relative group cursor-default">
-              <span className="text-sm font-bold text-gray-400 transition-colors">
+            item.href === "#" ? (
+              <div key={item.name} className="relative group cursor-default">
+                <span className="text-sm font-bold text-gray-400 transition-colors">
+                  {item.name}
+                </span>
+                <span className="absolute -top-3 -right-4 text-[7px] leading-none bg-gray-100 text-gray-400 px-1 py-0.5 rounded border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  SOON
+                </span>
+              </div>
+            ) : (
+              <Link key={item.name} href={item.href} className="text-sm font-bold text-gray-700 hover:text-orange-600 transition-colors">
                 {item.name}
-              </span>
-              {/* Badge "Soon" hiện khi hover */}
-              <span className="absolute -top-3 -right-4 text-[7px] leading-none bg-gray-100 text-gray-400 px-1 py-0.5 rounded border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                SOON
-              </span>
-            </div>
+              </Link>
+            )
           ))}
         </nav>
 
@@ -53,15 +59,25 @@ export default function Header() {
       <div className={`md:hidden overflow-hidden transition-all duration-300 bg-white border-b border-gray-100 ${isOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
         <nav className="flex flex-col p-4 gap-1">
           {menuItems.map((item) => (
-            <div 
-              key={item.name} 
-              className="flex items-center justify-between text-sm font-bold text-gray-400 p-3 rounded-xl"
-            >
-              <span className="italic">{item.name}</span>
-              <span className="text-[9px] font-bold not-italic bg-gray-50 text-gray-400 px-2 py-1 rounded-lg border border-gray-100 uppercase tracking-wider">
-                Sắp ra mắt
-              </span>
-            </div>
+            item.href === "#" ? (
+              <div
+                key={item.name}
+                className="flex items-center justify-between text-sm font-bold text-gray-400 p-3 rounded-xl"
+              >
+                <span className="italic">{item.name}</span>
+                <span className="text-[9px] font-bold not-italic bg-gray-50 text-gray-400 px-2 py-1 rounded-lg border border-gray-100 uppercase tracking-wider">
+                  Sắp ra mắt
+                </span>
+              </div>
+            ) : (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-sm font-bold text-gray-700 hover:text-orange-600 p-3 rounded-xl"
+              >
+                {item.name}
+              </Link>
+            )
           ))}
         </nav>
       </div>
