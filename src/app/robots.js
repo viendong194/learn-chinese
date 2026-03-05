@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrchinesechannel.com';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrchinese.viendong.online/';
 
 export default function robots() {
   return {
