@@ -8,7 +8,7 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
 
-const VOCAB_PREFIX = 'TVHSK-';
+const VOCAB_PREFIX = 'SEVQR-';
 const UNLOCK_AMOUNT = 50000;
 
 export async function POST(request) {

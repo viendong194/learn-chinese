@@ -17,7 +17,7 @@ export async function GET(request) {
     });
   }
 
-  if (code.toUpperCase().startsWith('TVHSK-')) {
+  if (code.toUpperCase().startsWith('SEVQR-')) {
     code = code.slice(6).trim();
   }
   if (code.length < 6 || code.length > 20) {

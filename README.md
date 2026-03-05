@@ -61,7 +61,7 @@ Kiểm tra: Truy cập thẳng vào link gốc https://learn-chinese-e7e.pages.d
 3. **Biến môi trường trên Cloudflare Pages:**
    - `SEPAY_WEBHOOK_API_KEY`: API Key từ SePay (để webhook xác thực).
 
-4. **Luồng người dùng:** Người dùng chuyển khoản 50.000đ với nội dung **TVHSK-XXXXXXXX** (mã hiển thị trong modal). SePay gửi webhook → API lưu mã vào KV → Người dùng nhấn “Kiểm tra & Mở khóa” → API kiểm tra KV và trả về unlocked.
+4. **Luồng người dùng:** Người dùng chuyển khoản 50.000đ với nội dung **SEVQR-XXXXXXXX** (mã hiển thị trong modal). SePay gửi webhook → API lưu mã vào KV → Người dùng nhấn “Kiểm tra & Mở khóa” → API kiểm tra KV và trả về unlocked.
 
 ## prompt:
 

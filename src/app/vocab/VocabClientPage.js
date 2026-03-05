@@ -85,7 +85,7 @@ export default function VocabClientPage({ levels, vocab }) {
   useEffect(() => {
     if (showPaywall && !paymentCode) {
       const id = Math.random().toString(36).slice(2, 10).toUpperCase();
-      const code = `TVHSK-${id}`;
+      const code = `SEVQR-${id}`;
       setPaymentCode(code);
       setUnlockCodeInput(code);
       setCheckError('');
@@ -422,7 +422,7 @@ export default function VocabClientPage({ levels, vocab }) {
             </p>
             <div className="flex justify-center mb-3">
               <img
-                src={`https://img.vietqr.io/image/ICB-106883335692-compact2.jpg?amount=${UNLOCK_PRICE}&addInfo=${encodeURIComponent(paymentCode || 'TVHSK')}&accountName=MR%20CHINESE`}
+                src={`https://img.vietqr.io/image/ICB-106883335692-compact2.jpg?amount=${UNLOCK_PRICE}&addInfo=${encodeURIComponent(paymentCode || 'SEVQR')}&accountName=MR%20CHINESE`}
                 alt="QR chuyển khoản"
                 className="w-48 h-48 object-contain border border-gray-200 rounded-xl"
               />
@@ -439,7 +439,7 @@ export default function VocabClientPage({ levels, vocab }) {
                 type="text"
                 value={unlockCodeInput}
                 onChange={(e) => setUnlockCodeInput(e.target.value)}
-                placeholder="TVHSK-XXXXXXXX"
+                placeholder="SEVQR-XXXXXXXX"
                 className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
               />
             </div>
