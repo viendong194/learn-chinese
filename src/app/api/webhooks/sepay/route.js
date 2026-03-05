@@ -8,60 +8,53 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
 
-const VOCAB_PREFIX = 'SEVQR-';
-const UNLOCK_AMOUNT = 50000;
-
 export async function POST(request) {
-  // Lấy environment từ context trước
-  const { env } = getRequestContext();
-  
   try {
-    const authHeader = request.headers.get('authorization') || '';
-    
-    // SỬA TẠI ĐÂY: Lấy từ env của Cloudflare, không dùng process.env
-    const apiKey = env.SEPAY_WEBHOOK_API_KEY; 
-
-    if (apiKey && authHeader !== `Apikey ${apiKey}`) {
-      return new Response(JSON.stringify({ success: false, message: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
+    const context = getRequestContext();
+    const env = context?.env;
     const body = await request.json();
-    console.log('Payload từ SePay:', JSON.stringify(body)); // Log để debug
+    
+    // Log để bạn kiểm tra trong Cloudflare Dashboard
+    console.log("Payload SePay nhận được:", JSON.stringify(body));
 
     const { transferType, transferAmount, content, description } = body;
 
+    // 1. Chỉ xử lý giao dịch tiền vào
     if (transferType !== 'in') {
-      return new Response(JSON.stringify({ success: true, message: 'Ignored: not incoming' }), 200);
+      return new Response(JSON.stringify({ success: true, msg: "Không phải tiền vào" }), { status: 200 });
     }
 
-    // Gộp cả content và description để tìm mã
+    // 2. Gộp nội dung và tìm mã đơn hàng
     const text = `${content} ${description}`.toUpperCase();
     
-    // SỬA REGEX: Nới lỏng hơn để dễ khớp khi khách gõ tay
-    // Tìm chuỗi bắt đầu bằng SEVQR- và lấy phần phía sau
-    const match = text.match(/SEVQR-([A-Z0-9]{3,20})/); 
-    const code = match ? match[1].trim() : null;
-
-    if (!code) {
-      console.log('Không tìm thấy mã đơn trong nội dung:', text);
-      return new Response(JSON.stringify({ success: true, message: 'No valid code found' }), 200);
+    // Regex mới: Tìm chữ SEVQR và lấy chuỗi ký tự/số ngay sau nó (từ 3-15 ký tự)
+    // Nó sẽ tự dừng khi gặp dấu chấm, dấu cách hoặc ký tự đặc biệt
+    const match = text.match(/SEVQR([A-Z0-9]{3,15})/);
+    
+    if (!match) {
+      console.log("Không tìm thấy mã SEVQR trong nội dung:", text);
+      return new Response(JSON.stringify({ success: true, msg: "No code found" }), { status: 200 });
     }
 
-    const kv = env.VOCAB_PAYMENTS;
-    if (!kv) throw new Error("KV Binding VOCAB_PAYMENTS is missing");
+    const cleanCode = match[1]; // Ví dụ: NPUJHJHS (đã loại bỏ SEVQR và .CT)
+    const kv = env?.VOCAB_PAYMENTS;
 
-    const key = `unlock:${code}`;
-    await kv.put(key, Date.now().toString(), { expirationTtl: 60 * 60 * 24 * 90 });
+    if (!kv) {
+      console.error("LỖI: Chưa bind KV VOCAB_PAYMENTS trong Dashboard Cloudflare!");
+      return new Response(JSON.stringify({ error: "KV Missing" }), { status: 500 });
+    }
 
-    return new Response(JSON.stringify({ success: true, key_saved: key }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
+    // 3. Lưu vào KV với key sạch
+    const key = `unlock:${cleanCode}`;
+    await kv.put(key, Date.now().toString(), { 
+      expirationTtl: 60 * 60 * 24 * 90 // Lưu trong 90 ngày
     });
 
+    console.log(`Đã mở khóa thành công cho mã: ${cleanCode}`);
+    return new Response(JSON.stringify({ success: true, code: cleanCode }), { status: 200 });
+
   } catch (err) {
+    console.error("Webhook Error:", err.message);
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }

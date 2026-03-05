@@ -9,49 +9,48 @@ export const runtime = 'edge';
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    let rawCode = searchParams.get('code')?.trim() || '';
+    const rawCode = searchParams.get('code')?.trim() || '';
 
-    // Xử lý tiền tố SEVQR-
-    let code = rawCode;
-    if (code.toUpperCase().startsWith('SEVQR-')) {
-      code = code.slice(6).trim();
+    // 1. Làm sạch mã người dùng nhập (Xóa SEVQR- nếu có)
+    let cleanCode = rawCode.toUpperCase();
+    if (cleanCode.startsWith('SEVQR-')) {
+        cleanCode = cleanCode.replace('SEVQR-', '');
+    } else if (cleanCode.startsWith('SEVQR')) {
+        cleanCode = cleanCode.replace('SEVQR', '');
     }
 
-    if (!code || code.length < 6 || code.length > 20) {
-      return new Response(JSON.stringify({ unlocked: false, error: 'Mã không hợp lệ' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (!cleanCode || cleanCode.length < 3) {
+      return new Response(JSON.stringify({ unlocked: false, error: 'Mã không hợp lệ' }), { status: 400 });
     }
 
-    // LẤY CONTEXT VÀ KIỂM TRA BINDING
+    // 2. Lấy KV từ context
     const context = getRequestContext();
-    if (!context || !context.env) {
-      console.error("Lỗi: Không tìm thấy Cloudflare Context. Bạn có đang chạy bằng wrangler không?");
-      return new Response(JSON.stringify({ error: 'Môi trường không hỗ trợ' }), { status: 500 });
-    }
+    const kv = context?.env?.VOCAB_PAYMENTS;
 
-    const kv = context.env.VOCAB_PAYMENTS;
-    
-    // ĐÂY LÀ CHỖ GÂY LỖI: Kiểm tra xem KV có tồn tại không trước khi gọi .get()
     if (!kv) {
-      console.error("Lỗi: Binding VOCAB_PAYMENTS chưa được cấu hình trên Dashboard Cloudflare.");
-      return new Response(JSON.stringify({ error: 'Hệ thống chưa cấu hình KV' }), { status: 500 });
+      console.error("LỖI: KV Binding không tồn tại!");
+      return new Response(JSON.stringify({ error: "Hệ thống chưa cấu hình" }), { status: 500 });
     }
 
-    const key = `unlock:${code}`;
+    // 3. Truy vấn mã sạch trong KV
+    const key = `unlock:${cleanCode}`;
     const value = await kv.get(key);
 
-    return new Response(JSON.stringify({ 
-      unlocked: !!value, 
-      message: value ? 'Đã thanh toán' : 'Chưa nhận được thanh toán' 
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    if (value) {
+      return new Response(JSON.stringify({ 
+        unlocked: true, 
+        message: "Đã kích hoạt thành công",
+        timestamp: value 
+      }), { status: 200 });
+    }
 
-  } catch (e) {
-    console.error('check-unlock error:', e);
-    return new Response(JSON.stringify({ error: 'Lỗi server nội bộ' }), { status: 500 });
+    return new Response(JSON.stringify({ 
+        unlocked: false, 
+        error: "Chưa nhận được thanh toán cho mã này" 
+    }), { status: 200 });
+
+  } catch (err) {
+    console.error("Check-unlock error:", err.message);
+    return new Response(JSON.stringify({ error: "Lỗi hệ thống" }), { status: 500 });
   }
 }
