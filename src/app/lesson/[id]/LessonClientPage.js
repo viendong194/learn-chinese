@@ -6,10 +6,25 @@ import FillBlank from '@/components/FillBlank';
 import Matching from '@/components/Matching';
 import MCQ from '@/components/MCQ';
 import OrderTask from '@/components/OrderTask';
+import TrueFalse from '@/components/TrueFalse';
 
 export default function LessonClientPage({ lesson, allLessons }) {
   const [scriptUnlocked, setScriptUnlocked] = useState(false);
   const [exerciseUnlocked, setExerciseUnlocked] = useState(false);
+
+  // Quiz Mode states
+  const [currentExIndex, setCurrentExIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [quizFinished, setQuizFinished] = useState(false);
+
+  // Audio refs
+  const playSound = (type) => {
+    try {
+      const audio = new Audio(type === 'correct' ? '/sounds/correct.mp3' : '/sounds/wrong.mp3');
+      audio.volume = 0.5;
+      audio.play().catch(e => console.log("Audio play failed:", e));
+    } catch (e) { }
+  };
 
   const exerciseData = useMemo(() => {
     if (!lesson?.tasks) return null;
@@ -51,6 +66,24 @@ export default function LessonClientPage({ lesson, allLessons }) {
     if (lesson.script) window.open(lesson.script, '_blank');
     else alert("Không tìm thấy link tài liệu!");
   };
+
+  const handleExerciseComplete = (isCorrect) => {
+    playSound(isCorrect ? 'correct' : 'wrong');
+
+    if (isCorrect) {
+      setScore(prev => prev + 1);
+    }
+
+    setTimeout(() => {
+      if (currentExIndex < (exerciseData?.exercises?.length || 0) - 1) {
+        setCurrentExIndex(prev => prev + 1);
+      } else {
+        setQuizFinished(true);
+      }
+    }, 500); // Thêm một chút delay trước khi chuyển câu tiếp theo
+  };
+
+  const currentExercise = exerciseData?.exercises?.[currentExIndex];
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20 selection:bg-blue-100">
@@ -118,16 +151,58 @@ export default function LessonClientPage({ lesson, allLessons }) {
                   🚀 Mở khóa bài tập
                 </button>
               </div>
-            ) : (
-              <div className="space-y-10">
-                {exerciseData?.exercises?.map((item, index) => (
-                  <div key={index} className="bg-white rounded-3xl p-4 border">
-                    {item.type === 'fill_blank' && <FillBlank data={item} />}
-                    {item.type === 'mcq' && <MCQ data={item} />}
-                    {item.type === 'matching' && <Matching data={item} />}
-                    {item.type === 'order' && <OrderTask data={item} />}
+            ) : exerciseData?.exercises && exerciseData.exercises.length > 0 ? (
+              <div className="bg-white rounded-3xl p-6 md:p-10 border shadow-lg relative overflow-hidden">
+                {!quizFinished ? (
+                  <>
+                    {/* Progress Bar */}
+                    <div className="mb-8">
+                      <div className="flex justify-between text-sm font-bold text-gray-500 mb-2">
+                        <span>Câu {currentExIndex + 1} / {exerciseData.exercises.length}</span>
+                        <span className="text-orange-500">Điểm: {score}</span>
+                      </div>
+                      <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
+                          style={{ width: `${((currentExIndex) / exerciseData.exercises.length) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Current Exercise */}
+                    <div className="min-h-[300px] flex flex-col justify-center">
+                      <div key={currentExIndex} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {currentExercise.type === 'fill_blank' && <FillBlank data={currentExercise} onComplete={handleExerciseComplete} />}
+                        {currentExercise.type === 'mcq' && <MCQ data={currentExercise} onComplete={handleExerciseComplete} />}
+                        {currentExercise.type === 'matching' && <Matching data={currentExercise} onComplete={handleExerciseComplete} />}
+                        {currentExercise.type === 'order' && <OrderTask data={currentExercise} onComplete={handleExerciseComplete} />}
+                        {currentExercise.type === 'true_false' && <TrueFalse data={currentExercise} onComplete={handleExerciseComplete} />}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-10 animate-in zoom-in duration-500">
+                    <div className="text-6xl mb-6">🎉</div>
+                    <h3 className="text-3xl font-black text-gray-900 mb-4">Hoàn thành bài tập!</h3>
+                    <p className="text-xl text-gray-600 mb-8">
+                      Bạn đã đạt được <span className="font-bold text-orange-600 text-2xl">{score}/{exerciseData.exercises.length}</span> điểm.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setCurrentExIndex(0);
+                        setScore(0);
+                        setQuizFinished(false);
+                      }}
+                      className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-2xl font-bold transition-colors shadow-lg shadow-orange-200"
+                    >
+                      🔄 Làm lại từ đầu
+                    </button>
                   </div>
-                ))}
+                )}
+              </div>
+            ) : (
+              <div className="text-center bg-gray-50 p-10 rounded-3xl text-gray-500">
+                Chưa có dữ liệu bài tập cho bài học này.
               </div>
             )}
           </section>

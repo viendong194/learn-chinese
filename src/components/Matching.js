@@ -1,7 +1,7 @@
 // components/Matching.js
 import { useState, useEffect } from 'react';
 
-export default function Matching({ data }) {
+export default function Matching({ data, onComplete }) {
   const [leftItems, setLeftItems] = useState([]);
   const [rightItems, setRightItems] = useState([]);
   const [selectedLeft, setSelectedLeft] = useState(null);
@@ -22,8 +22,16 @@ export default function Matching({ data }) {
     // So khớp: Nếu item bên trái đang chọn chính là item tương ứng của bên phải
     // Vì cùng trích xuất từ 1 mảng pairs, ta so sánh giá trị 'left' hoặc 'right' đều được
     if (selectedLeft.left === rightItem.left) {
-      setSolved([...solved, selectedLeft.left]);
+      const newSolved = [...solved, selectedLeft.left];
+      setSolved(newSolved);
       setSelectedLeft(null);
+
+      // Nếu đã giải quyết xong hết tất cả các cặp
+      if (newSolved.length === data.pairs.length && onComplete) {
+        setTimeout(() => {
+          onComplete(true); // Matching thường coi như luôn đúng khi hoàn thành
+        }, 1500);
+      }
     } else {
       // Nếu sai, bỏ chọn (reset)
       setSelectedLeft(null);
@@ -33,7 +41,7 @@ export default function Matching({ data }) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
       <h3 className="text-orange-600 font-bold mb-4 text-center">Nối từ tương ứng</h3>
-      
+
       <div className="flex justify-between gap-6">
         {/* Cột trái - Dựa trên thuộc tính 'left' */}
         <div className="flex-1 space-y-3">
@@ -46,13 +54,12 @@ export default function Matching({ data }) {
                 key={`left-${item.left}`}
                 disabled={isSolved}
                 onClick={() => setSelectedLeft(item)}
-                className={`w-full p-3 rounded-xl border-2 transition-all text-center ${
-                  isSolved 
-                    ? "bg-green-50 border-green-200 text-green-600 opacity-50 cursor-not-allowed" 
-                    : isSelected 
-                      ? "border-orange-500 bg-orange-50 text-orange-700 shadow-md ring-2 ring-orange-200" 
+                className={`w-full p-3 rounded-xl border-2 transition-all text-center ${isSolved
+                    ? "bg-green-50 border-green-200 text-green-600 opacity-50 cursor-not-allowed"
+                    : isSelected
+                      ? "border-orange-500 bg-orange-50 text-orange-700 shadow-md ring-2 ring-orange-200"
                       : "border-gray-100 hover:border-orange-300 bg-white"
-                }`}
+                  }`}
               >
                 {item.left}
               </button>
@@ -70,11 +77,10 @@ export default function Matching({ data }) {
                 key={`right-${item.right}`}
                 disabled={isSolved}
                 onClick={() => handleMatch(item)}
-                className={`w-full p-3 rounded-xl border-2 transition-all text-center ${
-                  isSolved 
-                    ? "bg-green-50 border-green-200 text-green-600 opacity-50 cursor-not-allowed" 
+                className={`w-full p-3 rounded-xl border-2 transition-all text-center ${isSolved
+                    ? "bg-green-50 border-green-200 text-green-600 opacity-50 cursor-not-allowed"
                     : "border-gray-100 hover:border-orange-300 bg-white active:bg-orange-50"
-                }`}
+                  }`}
               >
                 {item.right}
               </button>

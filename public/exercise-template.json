@@ -1,0 +1,59 @@
+{
+    "exercises": [
+        {
+            "type": "true_false",
+            "question": "Trong tiếng Trung, '你好' có nghĩa là 'Tạm biệt'.",
+            "answer": false,
+            "explanation": "'你好' (Nǐ hǎo) có nghĩa là 'Xin chào'. 'Tạm biệt' là '再见' (Zàijiàn)."
+        },
+        {
+            "type": "mcq",
+            "question": "Từ nào sau đây có nghĩa là 'Cảm ơn'?",
+            "options": [
+                "再见",
+                "对不起",
+                "谢谢",
+                "没关系"
+            ],
+            "answer": "谢谢",
+            "explanation": "'谢谢' (Xièxiè) nghĩa là Cảm ơn."
+        },
+        {
+            "type": "fill_blank",
+            "question": "我 ___ 中国人。(Tôi là người Trung Quốc)",
+            "choices": [
+                "是",
+                "不",
+                "很",
+                "吗"
+            ],
+            "answer": "是",
+            "explanation": "'是' (shì) đóng vai trò như động từ 'to be' (thì/là/ở) trong tiếng Việt."
+        },
+        {
+            "type": "matching",
+            "pairs": [
+                {
+                    "left": "你好",
+                    "right": "Xin chào"
+                },
+                {
+                    "left": "谢谢",
+                    "right": "Cảm ơn"
+                },
+                {
+                    "left": "再见",
+                    "right": "Tạm biệt"
+                }
+            ]
+        },
+        {
+            "type": "order",
+            "words": [
+                "你, 好, 吗"
+            ],
+            "answer": "你→好→吗",
+            "explanation": "'你好吗？' (Nǐ hǎo ma?) - Bạn khỏe không?"
+        }
+    ]
+}
