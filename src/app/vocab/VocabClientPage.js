@@ -268,7 +268,7 @@ export default function VocabClientPage({ levels, vocab }) {
             ) : (
               <>
                 <p className="text-sm text-amber-800">
-                  Bạn đang dùng thử <strong>{FREE_CARD_LIMIT} thẻ đầu</strong>. Mở khóa toàn bộ với <strong>{UNLOCK_PRICE.toLocaleString('vi-VN')}đ</strong>.
+                  Bạn đang dùng thử <strong>{FREE_CARD_LIMIT} thẻ đầu</strong>. Mở khóa toàn bộ từ vựng HSK1~HSK6 3.0 <br/> theo HANBAN công bố 11/2025 với <strong>{UNLOCK_PRICE.toLocaleString('vi-VN')}đ</strong>.
                 </p>
                 <button
                   type="button"

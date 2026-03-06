@@ -1,6 +1,6 @@
 import { getLessons } from '@/lib/googleSheet';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrchinese.viendong.online/';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrchinese.viendong.online';
 
 export default async function sitemap() {
   const lessons = await getLessons();
