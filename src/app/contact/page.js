@@ -2,7 +2,8 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Liên hệ',
-  description: 'Liên hệ Mr. Chinese Channel qua số điện thoại, email, Facebook, TikTok, YouTube.',
+  description: 'Liên hệ Mr. Chinese Channel - Học tiếng Trung, từ vựng HSK, luyện thi HSK. SĐT, email, Facebook, TikTok, YouTube.',
+  keywords: ['liên hệ Mr. Chinese Channel', 'học tiếng Trung', 'Chinese', 'HSK', 'Mr. Chinese Channel'],
 };
 
 const CONTACT = {

@@ -27,11 +27,12 @@ export async function generateMetadata({ params }) {
   const title = lesson.title || `Bài học ${id}`;
   const description =
     lesson.description ||
-    `Học tiếng Trung: ${title}. Video, tài liệu và bài tập kèm theo.`;
+    `Học tiếng Trung (Chinese): ${title}. Video, tài liệu, bài tập. Từ vựng, ngữ pháp, luyện thi HSK. Mr. Chinese Channel.`;
 
   return {
     title,
     description,
+    keywords: ['học tiếng Trung', 'Chinese', 'HSK', 'ngữ pháp', 'từ vựng', 'Mr. Chinese Channel', title],
     openGraph: {
       title: `${title} | Mr. Chinese Channel`,
       description,
