@@ -1,0 +1,69 @@
+{
+  "exercises": [
+    {
+      "type": "fill_blank",
+      "question": "孝顺这个词就代表了我们对于长辈的___，爱戴和关心。",
+      "choices": ["尊敬", "理解", "批评", "支持"],
+      "answer": "尊敬"
+    },
+    {
+      "type": "fill_blank",
+      "question": "孝字的字形表示，孩子在上面___父母。",
+      "choices": ["批评", "背着", "指责", "远离"],
+      "answer": "背着"
+    },
+    {
+      "type": "fill_blank",
+      "question": "孝顺的具体的表现有常回家看看父母，给父母___，或者多陪父母说说话。",
+      "choices": ["打打电话", "发邮件", "写信", "玩游戏"],
+      "answer": "打打电话"
+    },
+    {
+      "type": "matching",
+      "pairs": [
+        { "left": "孝顺", "right": "filial piety" },
+        { "left": "会意字", "right": "ideogrammic compound" },
+        { "left": "长辈", "right": "elders/seniors" },
+        { "left": "尊敬", "right": "respect" },
+        { "left": "义务", "right": "duty/obligation" },
+        { "left": "《孝经》", "right": "The Classic of Filial Piety" }
+      ]
+    },
+    {
+      "type": "mcq",
+      "question": "在现代汉语中，我们通常用哪个词来表达“孝”？",
+      "options": ["A. 孝", "B. 孝道", "C. 孝顺", "D. 孝子"],
+      "answer": "C"
+    },
+    {
+      "type": "mcq",
+      "question": "孝字的字形结构中，上面部分代表什么？",
+      "options": ["A. 孩子", "B. 父母", "C. 老人", "D. 朋友"],
+      "answer": "C"
+    },
+    {
+      "type": "mcq",
+      "question": "以下哪一项不是孝顺的具体表现？",
+      "options": ["A. 常回家看看父母", "B. 关心父母的身体健康", "C. 带父母去旅游", "D. 忽略父母的感受"],
+      "answer": "D"
+    },
+    {
+      "type": "order",
+      "words": ["孝道文化", "是", "中国传统文化", "的", "重要", "组成部分"]
+    },
+    {
+      "type": "order",
+      "words": ["父母", "在世", "子女", "尽心奉养"]
+    },
+    {
+      "type": "true_false",
+      "question": "《孝经》是一本专门讲述孝道伦理的书。",
+      "answer": true
+    },
+    {
+      "type": "true_false",
+      "question": "会意字是指只用一个独体字组合而成，表达新意义的字。",
+      "answer": false
+    }
+  ]
+}

@@ -1,40 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
 ## Deploy on Cloudpages
 Xóa các bản build cũ: rm -rf .next .vercel
 
@@ -84,3 +47,21 @@ Dựa trên nội dung tiếng Trung sau đây: "${content}"
     5. Order: Sắp xếp các câu hội thoại theo thứ tự logic.
     Chỉ trả về JSON thô, không kèm văn bản giải thích.
 
+
+
+Hướng dẫn sử dụng cho bạn từ nay về sau:
+Bước 1: Thiết lập API Key (Chỉ làm 1 lần) Hãy đảm bảo bạn đã tạo file .env.local ở thư mục gốc của dự án, và đưa "chìa khoá" Gemini API vào đó:
+
+env
+GEMINI_API_KEY=AIzaSy...
+(Nếu chưa có key, bạn vào aistudio.google.com để lấy nhé).
+
+Bước 2: Tạo bài tập mỗi khi có video mới Ví dụ ID bài học của bạn trên Google sheet là bai-hoc-so-1, link youtube là https://www.youtube.com/watch?v=XYZ123: Mở terminal và gõ lệnh:
+
+bash
+npm run generate-exercises "https://www.youtube.com/watch?v=XYZ123" "bai-hoc-so-1"
+Bạn chờ khoảng 10-20 giây, hệ thống sẽ báo lưu thành công vào file src/data/exercises/bai-hoc-so-1.json.
+
+Bước 3: Tận hưởng kết quả Bây giờ nếu bạn chạy npm run dev (hoặc build lên Cloudflare), code sẽ tự ăn bài tập AI vào giao diện cực chuần xác mà không cần dán data JSON khổng lồ vào Google Sheets nữa!
+
+Bạn có muốn kiểm tra lại code hoặc chạy thử một link YouTube nào luôn không? Cứ gõ lệnh ở terminal để xem ma thuật nhé! Tôi có giúp gì thêm được không?

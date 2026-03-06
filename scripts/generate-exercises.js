@@ -36,8 +36,8 @@ async function main() {
 
     const text = transcript.map(t => t.text).join(' ');
 
-    console.log("⏳ Đã lấy xong phụ đề! Đang nhờ Gemini tạo bài tập (việc này có thể mất 10-30s)...");
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Note: Use gemini-1.5-flash for the fastest available model or just gemini-pro depending on the API Key region setup
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
 Dưới đây là một phần nội dung phụ đề của một video dạy ngôn ngữ tiếng Trung:
@@ -50,6 +50,7 @@ Dựa vào nội dung trên, hãy tạo ra một bài tập có đầy đủ cá
     {
       "type": "fill_blank",
       "question": "Câu có chỗ trống dùng ___ để điền",
+      "choices": ["từ điền", "từ sai 1", "từ sai 2", "từ sai 3"],
       "answer": "từ điền"
     },
     {
