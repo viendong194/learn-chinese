@@ -1,5 +1,7 @@
 // app/lesson/[id]/page.js
 
+import fs from 'fs';
+import path from 'path';
 import { getLessons } from '@/lib/googleSheet';
 import LessonClientPage from './LessonClientPage';
 
@@ -61,6 +63,16 @@ export default async function Page({ params }) {
         <a href="/" className="text-blue-500 underline">Quay lại trang chủ</a>
       </div>
     );
+  }
+
+  try {
+    const exercisesPath = path.join(process.cwd(), 'src/data/exercises', `${id}.json`);
+    if (fs.existsSync(exercisesPath)) {
+      const fileContent = fs.readFileSync(exercisesPath, 'utf8');
+      lesson.tasks = fileContent;
+    }
+  } catch (error) {
+    console.error("Lỗi khi đọc file bài tập local:", error);
   }
 
   return <LessonClientPage lesson={lesson} allLessons={allLessons} />;
