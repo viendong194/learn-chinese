@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import Link from 'next/link';
+import WritingPad from '@/components/vocab/WritingPad';
 
 const STORAGE_KEY = 'hsk-vocab-learned';
 const FREE_CARD_LIMIT = 10;
@@ -60,6 +61,7 @@ export default function VocabClientPage({ levels, vocab }) {
   const [unlockCodeInput, setUnlockCodeInput] = useState('');
   const [checkLoading, setCheckLoading] = useState(false);
   const [checkError, setCheckError] = useState('');
+  const [mode, setMode] = useState('cards'); // 'cards' | 'writing'
 
   useEffect(() => {
     setLearnedIds(loadLearnedIds());
@@ -282,6 +284,25 @@ export default function VocabClientPage({ levels, vocab }) {
           </div>
         )}
 
+        {/* Tab: Học thẻ | Luyện viết */}
+        <div className="flex rounded-xl bg-gray-100 p-1 mb-6">
+          <button
+            type="button"
+            onClick={() => setMode('cards')}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'cards' ? 'bg-white text-orange-600 shadow' : 'text-gray-600'}`}
+          >
+            Học thẻ
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('writing')}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'writing' ? 'bg-white text-orange-600 shadow' : 'text-gray-600'}`}
+          >
+            Luyện viết
+            {!isPremium && <span className="ml-1 text-[10px] opacity-75">(dùng thử 10 từ)</span>}
+          </button>
+        </div>
+
         {/* Learned filter + count */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <p className="text-gray-500 text-sm">
@@ -306,6 +327,32 @@ export default function VocabClientPage({ levels, vocab }) {
           {index + 1} / {total}
         </p>
 
+        {mode === 'writing' ? (
+          <>
+            <WritingPad
+              key={`${selectedLevel}-${current?.stt}`}
+              word={current?.word}
+              pinyin={current?.pinyin}
+            />
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <button
+                onClick={goPrev}
+                className="w-14 h-14 rounded-full bg-white border-2 border-gray-200 text-gray-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-center text-2xl font-bold transition-all shadow-sm"
+                aria-label="Từ trước"
+              >
+                ←
+              </button>
+              <button
+                onClick={goNext}
+                className="w-14 h-14 rounded-full bg-white border-2 border-gray-200 text-gray-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-center text-2xl font-bold transition-all shadow-sm"
+                aria-label="Từ tiếp"
+              >
+                →
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
         {/* Đã thuộc button */}
         <div className="flex justify-center mb-4">
           <button
@@ -411,6 +458,8 @@ export default function VocabClientPage({ levels, vocab }) {
             →
           </button>
         </div>
+          </>
+        )}
       </div>
 
       {/* Paywall Modal */}
