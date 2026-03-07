@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import WritingPad from '@/components/vocab/WritingPad';
 
@@ -62,6 +62,7 @@ export default function VocabClientPage({ levels, vocab }) {
   const [checkLoading, setCheckLoading] = useState(false);
   const [checkError, setCheckError] = useState('');
   const [mode, setMode] = useState('cards'); // 'cards' | 'writing'
+  const speakAudioUnlocked = useRef(false);
 
   useEffect(() => {
     setLearnedIds(loadLearnedIds());
@@ -96,13 +97,27 @@ export default function VocabClientPage({ levels, vocab }) {
 
   const speak = useCallback((text) => {
     if (!text || typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
+    const syn = window.speechSynthesis;
+
+    // iOS: cần mở khóa audio bằng user gesture. Phát silent trong cùng lần chạm.
+    if (!speakAudioUnlocked.current) {
+      try {
+        const silent = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAA==');
+        silent.volume = 0;
+        silent.play().catch(() => {});
+      } catch (_) {}
+      speakAudioUnlocked.current = true;
+    }
+
+    syn.cancel();
+    if (typeof syn.resume === 'function') syn.resume();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'zh-CN';
     u.rate = 0.9;
+    u.volume = 1;
     u.onstart = () => setSpeaking(true);
     u.onend = u.onerror = () => setSpeaking(false);
-    window.speechSynthesis.speak(u);
+    syn.speak(u);
   }, []);
 
   const rawList = useMemo(() => {
@@ -299,7 +314,6 @@ export default function VocabClientPage({ levels, vocab }) {
             className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'writing' ? 'bg-white text-orange-600 shadow' : 'text-gray-600'}`}
           >
             Luyện viết
-            {!isPremium && <span className="ml-1 text-[10px] opacity-75">(dùng thử 10 từ)</span>}
           </button>
         </div>
 
