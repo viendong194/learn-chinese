@@ -7,9 +7,9 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { name: "Từ vựng HSK", href: "/vocab" },
+    { name: "Từ vựng HSK 3.0", href: "/vocab" },
     { name: "Mua sắm", href: "#" },
-    { name: "Tài liệu ôn thi HSK", href: "#" },
+    { name: "Sách Song Ngữ", href: "#" },
     { name: "Giáo trình", href: "#" },
     { name: "Liên hệ", href: "/contact" },
   ];

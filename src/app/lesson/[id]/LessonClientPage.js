@@ -138,7 +138,7 @@ export default function LessonClientPage({ lesson, allLessons }) {
               <div className="flex-1 text-center md:text-left">
                 <h3 className="text-xl font-bold mb-2">📚 Từ vựng HSK</h3>
                 <p className="text-gray-500 text-sm">
-                  Học từ vựng HSK 1–6 bằng flashcard, có phát âm và đánh dấu đã thuộc.
+                  Học từ vựng HSK 1–6 3.0 bằng flashcard, có phát âm, mẹo ghi nhớ, luyện viết và bài tập.
                 </p>
               </div>
               <Link
