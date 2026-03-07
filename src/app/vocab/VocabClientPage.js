@@ -27,7 +27,7 @@ function saveLearnedIds(ids) {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
-  } catch (_) {}
+  } catch (_) { }
 }
 
 function SpeakerIcon({ className }) {
@@ -114,7 +114,7 @@ export default function VocabClientPage({ levels, vocab }) {
       try {
         syn.cancel();
         syn.speak(new SpeechSynthesisUtterance(''));
-      } catch (_) {}
+      } catch (_) { }
       speakAudioUnlocked.current = true;
     }
 
@@ -274,11 +274,10 @@ export default function VocabClientPage({ levels, vocab }) {
                 setIndex(0);
                 setFlipped(false);
               }}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                selectedLevel === level
-                  ? 'bg-orange-600 text-white shadow-lg shadow-orange-200'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-orange-300 hover:bg-orange-50'
-              }`}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${selectedLevel === level
+                ? 'bg-orange-600 text-white shadow-lg shadow-orange-200'
+                : 'bg-white text-gray-600 border border-gray-200 hover:border-orange-300 hover:bg-orange-50'
+                }`}
             >
               {level}
             </button>
@@ -305,7 +304,7 @@ export default function VocabClientPage({ levels, vocab }) {
             ) : (
               <>
                 <p className="text-sm text-amber-800">
-                  Bạn đang dùng thử <strong>{FREE_CARD_LIMIT} thẻ đầu</strong>. Mở khóa toàn bộ từ vựng HSK1~HSK6 3.0 <br/> theo HANBAN công bố 11/2025 với <strong>{UNLOCK_PRICE.toLocaleString('vi-VN')}đ</strong>.
+                  Bạn đang dùng thử <strong>{FREE_CARD_LIMIT} thẻ đầu</strong>.<br />Mở khóa toàn bộ từ vựng HSK1~HSK6 3.0 với <strong>{UNLOCK_PRICE.toLocaleString('vi-VN')}đ</strong>.
                 </p>
                 <button
                   type="button"
@@ -395,111 +394,114 @@ export default function VocabClientPage({ levels, vocab }) {
           </>
         ) : (
           <>
-        {/* Đã thuộc button */}
-        <div className="flex justify-center mb-4">
-          <button
-            type="button"
-            onClick={toggleLearned}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              isCurrentLearned
-                ? 'bg-green-500 text-white shadow-md'
-                : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-green-400 hover:bg-green-50 hover:text-green-700'
-            }`}
-          >
-            <CheckIcon className="w-5 h-5" />
-            {isCurrentLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}
-          </button>
-        </div>
-
-        {/* Flashcard */}
-        <div
-          className="relative aspect-[4/3] max-h-[320px] w-full max-w-md mx-auto cursor-pointer"
-          style={{ perspective: '1000px' }}
-          onClick={() => setFlipped((f) => !f)}
-        >
-          <div
-            className="relative w-full h-full rounded-2xl shadow-xl transition-transform duration-500"
-            style={{
-              transformStyle: 'preserve-3d',
-              transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-            }}
-          >
-            {/* Front: word + pinyin */}
-            <div
-              className="absolute inset-0 rounded-2xl bg-white border border-gray-100 flex flex-col items-center justify-center p-8"
-              style={{ backfaceVisibility: 'hidden' }}
-            >
-              <p className="text-6xl md:text-7xl font-bold text-gray-900 mb-3">{current.word}</p>
-              <div className="flex items-center gap-2">
-                <p className="text-xl text-orange-600 font-medium">{current.pinyin}</p>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); speak(current.word); }}
-                  className={`p-2 rounded-full transition-colors ${speaking ? 'bg-orange-100 text-orange-600' : 'text-orange-500 hover:bg-orange-50'}`}
-                  aria-label="Phát âm"
-                >
-                  <SpeakerIcon className="w-6 h-6" />
-                </button>
-              </div>
-              {current.type && (
-                <span className="mt-2 text-xs text-gray-400 font-medium">{current.type}</span>
-              )}
-              <p className="mt-4 text-sm text-gray-400">Nhấn hoặc chạm để xem nghĩa</p>
+            {/* Đã thuộc button */}
+            <div className="flex justify-center mb-4">
+              <button
+                type="button"
+                onClick={toggleLearned}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${isCurrentLearned
+                  ? 'bg-green-500 text-white shadow-md'
+                  : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-green-400 hover:bg-green-50 hover:text-green-700'
+                  }`}
+              >
+                <CheckIcon className="w-5 h-5" />
+                {isCurrentLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}
+              </button>
             </div>
 
-            {/* Back: meaning + tip */}
+            {/* Flashcard */}
             <div
-              className="absolute inset-0 rounded-2xl bg-orange-600 text-white flex flex-col items-center justify-center p-8"
-              style={{
-                backfaceVisibility: 'hidden',
-                transform: 'rotateY(180deg)',
-              }}
+              className="relative aspect-[4/3] max-h-[320px] w-full max-w-md mx-auto cursor-pointer"
+              style={{ perspective: '1000px' }}
+              onClick={() => setFlipped((f) => !f)}
             >
-              <p className="text-4xl md:text-5xl font-bold mb-2">{current.word}</p>
-              <div className="flex items-center gap-2 mb-4">
-                <p className="text-lg text-orange-100">{current.pinyin}</p>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); speak(current.word); }}
-                  className={`p-1.5 rounded-full transition-colors ${speaking ? 'bg-white/20' : 'hover:bg-white/10'}`}
-                  aria-label="Phát âm"
+              <div
+                className="relative w-full h-full rounded-2xl shadow-xl transition-transform duration-500"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                }}
+              >
+                {/* Front: word + pinyin */}
+                <div
+                  className="absolute inset-0 rounded-2xl bg-white border border-gray-100 flex flex-col items-center justify-center p-8"
+                  style={{ backfaceVisibility: 'hidden' }}
                 >
-                  <SpeakerIcon className="w-5 h-5 text-white" />
-                </button>
-              </div>
-              <p className="text-2xl font-bold mb-4">{current.meaning}</p>
-              {current.tip && (
-                <p className="text-sm text-orange-100/90 leading-relaxed text-center max-h-24 overflow-y-auto">
-                  {current.tip}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+                  <p className="text-6xl md:text-7xl font-bold text-gray-900 mb-3">{current.word}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl text-orange-600 font-medium">{current.pinyin}</p>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); speak(current.word); }}
+                      className={`p-2 rounded-full transition-colors ${speaking ? 'bg-orange-100 text-orange-600' : 'text-orange-500 hover:bg-orange-50'}`}
+                      aria-label="Phát âm"
+                    >
+                      <SpeakerIcon className="w-6 h-6" />
+                    </button>
+                  </div>
+                  {current.type && (
+                    <span className="mt-2 text-xs text-gray-400 font-medium">{current.type}</span>
+                  )}
+                  <p className="mt-4 text-sm text-gray-400">Nhấn hoặc chạm để xem nghĩa</p>
+                </div>
 
-        {/* Buttons */}
-        <div className="flex items-center justify-center gap-4 mt-8">
-          <button
-            onClick={goPrev}
-            className="w-14 h-14 rounded-full bg-white border-2 border-gray-200 text-gray-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-center text-2xl font-bold transition-all shadow-sm"
-            aria-label="Từ trước"
-          >
-            ←
-          </button>
-          <button
-            onClick={() => setFlipped((f) => !f)}
-            className="px-6 py-3 rounded-xl bg-orange-600 text-white font-bold shadow-lg shadow-orange-200 hover:bg-orange-700 transition"
-          >
-            {flipped ? 'Xem chữ' : 'Xem nghĩa'}
-          </button>
-          <button
-            onClick={goNext}
-            className="w-14 h-14 rounded-full bg-white border-2 border-gray-200 text-gray-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-center text-2xl font-bold transition-all shadow-sm"
-            aria-label="Từ tiếp"
-          >
-            →
-          </button>
-        </div>
+                {/* Back: meaning + tip */}
+                <div
+                  className="absolute inset-0 rounded-2xl bg-orange-600 text-white flex flex-col items-center justify-center p-8"
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)',
+                  }}
+                >
+                  <p className="text-4xl md:text-5xl font-bold mb-2">{current.word}</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <p className="text-lg text-orange-100">{current.pinyin}</p>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); speak(current.word); }}
+                      className={`p-1.5 rounded-full transition-colors ${speaking ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                      aria-label="Phát âm"
+                    >
+                      <SpeakerIcon className="w-5 h-5 text-white" />
+                    </button>
+                  </div>
+                  <p className="text-2xl font-bold mb-4">{current.meaning}</p>
+                  {current.tip && (
+                    <p className="text-sm text-orange-100/90 leading-relaxed text-center max-h-24 overflow-y-auto">
+                      {current.tip}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <p className="text-center text-xs text-gray-400 mt-4 mb-2 px-4">
+              Danh sách từ vựng HSK 3.0 mới nhất (theo công bố chính thức Hanban 11/2025)
+            </p>
+
+            {/* Buttons */}
+            <div className="flex items-center justify-center gap-4 mt-8">
+              <button
+                onClick={goPrev}
+                className="w-14 h-14 rounded-full bg-white border-2 border-gray-200 text-gray-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-center text-2xl font-bold transition-all shadow-sm"
+                aria-label="Từ trước"
+              >
+                ←
+              </button>
+              <button
+                onClick={() => setFlipped((f) => !f)}
+                className="px-6 py-3 rounded-xl bg-orange-600 text-white font-bold shadow-lg shadow-orange-200 hover:bg-orange-700 transition"
+              >
+                {flipped ? 'Xem chữ' : 'Xem nghĩa'}
+              </button>
+              <button
+                onClick={goNext}
+                className="w-14 h-14 rounded-full bg-white border-2 border-gray-200 text-gray-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-center text-2xl font-bold transition-all shadow-sm"
+                aria-label="Từ tiếp"
+              >
+                →
+              </button>
+            </div>
           </>
         )}
       </div>
