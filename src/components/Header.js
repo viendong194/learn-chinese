@@ -9,8 +9,8 @@ export default function Header() {
   const menuItems = [
     { name: "Từ vựng HSK 3.0", href: "/vocab" },
     { name: "Mua sắm", href: "#" },
-    { name: "Sách Song Ngữ", href: "#" },
-    { name: "Giáo trình", href: "#" },
+    { name: "Sách Song Ngữ", href: "/bilingual-books" },
+    { name: "Tài Liệu HSK", href: "#" },
     { name: "Liên hệ", href: "/contact" },
   ];
 
@@ -43,8 +43,8 @@ export default function Header() {
         </nav>
 
         {/* Mobile Button */}
-        <button 
-          onClick={() => setIsOpen(!isOpen)} 
+        <button
+          onClick={() => setIsOpen(!isOpen)}
           className="md:hidden p-2 text-gray-600 outline-none"
         >
           <div className="w-6 h-5 relative flex flex-col justify-between">
