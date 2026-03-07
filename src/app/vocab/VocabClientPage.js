@@ -64,6 +64,16 @@ export default function VocabClientPage({ levels, vocab }) {
   const [mode, setMode] = useState('cards'); // 'cards' | 'writing'
   const speakAudioUnlocked = useRef(false);
 
+  // iOS: gọi getVoices() khi load và khi có voiceschanged để danh sách giọng sẵn sàng
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    const syn = window.speechSynthesis;
+    const load = () => syn.getVoices();
+    load();
+    syn.onvoiceschanged = load;
+    return () => { syn.onvoiceschanged = null; };
+  }, []);
+
   useEffect(() => {
     setLearnedIds(loadLearnedIds());
   }, []);
@@ -99,25 +109,35 @@ export default function VocabClientPage({ levels, vocab }) {
     if (!text || typeof window === 'undefined' || !window.speechSynthesis) return;
     const syn = window.speechSynthesis;
 
-    // iOS: cần mở khóa audio bằng user gesture. Phát silent trong cùng lần chạm.
+    // iOS: bắt buộc phải gọi speak() trong user gesture. Gọi speak('') trước để mở khóa.
     if (!speakAudioUnlocked.current) {
       try {
-        const silent = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAA==');
-        silent.volume = 0;
-        silent.play().catch(() => {});
+        syn.cancel();
+        syn.speak(new SpeechSynthesisUtterance(''));
       } catch (_) {}
       speakAudioUnlocked.current = true;
     }
 
-    syn.cancel();
-    if (typeof syn.resume === 'function') syn.resume();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'zh-CN';
-    u.rate = 0.9;
-    u.volume = 1;
-    u.onstart = () => setSpeaking(true);
-    u.onend = u.onerror = () => setSpeaking(false);
-    syn.speak(u);
+    // iOS: voices thường load sau user gesture; gọi speak thật sau delay ngắn.
+    const doSpeak = () => {
+      syn.cancel();
+      const voices = syn.getVoices();
+      const zhVoice = voices.find((v) => v.lang === 'zh-CN' || v.lang.startsWith('zh-'));
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-CN';
+      if (zhVoice) u.voice = zhVoice;
+      u.rate = 0.9;
+      u.volume = 1;
+      u.onstart = () => setSpeaking(true);
+      u.onend = u.onerror = () => setSpeaking(false);
+      syn.speak(u);
+    };
+
+    if (speakAudioUnlocked.current) {
+      setTimeout(doSpeak, 150);
+    } else {
+      doSpeak();
+    }
   }, []);
 
   const rawList = useMemo(() => {
