@@ -12,6 +12,7 @@ const CONTACT = {
   facebook: 'https://www.facebook.com/mrchinese.channel',
   tiktok: 'https://tiktok.com/@mrchinesechannel',
   youtube: 'https://www.youtube.com/@mr.chinesechannel',
+  spotify: 'https://open.spotify.com/show/7cbdgvtWWMOwl4eejMRPWI',
 };
 
 export default function ContactPage() {
@@ -107,6 +108,24 @@ export default function ContactPage() {
             </span>
             <div className="flex-1">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">YouTube</p>
+              <p className="text-lg font-bold text-gray-900">Mr. Chinese Channel</p>
+            </div>
+            <span className="text-gray-400">↗</span>
+          </a>
+
+          <a
+            href={CONTACT.spotify}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-green-200 transition-all group"
+          >
+            <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-green-100 text-green-600 group-hover:bg-green-200">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.49 17.31c-.21.346-.66.456-1.002.247-2.825-1.728-6.382-2.12-10.57-1.166-.394.09-.79-.165-.88-.56-.09-.395.164-.79.56-.88 4.583-1.047 8.513-.6 11.645 1.317.346.21.46.662.247 1.042zm1.467-3.26c-.266.43-.827.57-1.257.303-3.23-1.983-8.157-2.558-11.977-1.398-.485.148-.997-.13-.146-.615-.148-.484.13-.996.615-1.144 4.37-1.327 9.805-.675 13.513 1.597.436.267.57.828.303 1.258zm.13-3.4c-3.877-2.304-10.283-2.516-14.004-1.385-.593.18-1.22-.158-1.4-.75-.18-.593.158-1.22.75-1.4 4.28-1.3 11.336-1.0 15.8 1.66.533.316.71.998.395 1.53-.316.533-.998.71-1.53.395z" />
+              </svg>
+            </span>
+            <div className="flex-1">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Spotify</p>
               <p className="text-lg font-bold text-gray-900">Mr. Chinese Channel</p>
             </div>
             <span className="text-gray-400">↗</span>
