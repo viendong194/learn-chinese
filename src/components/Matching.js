@@ -1,7 +1,7 @@
 // components/Matching.js
 import { useState, useEffect } from 'react';
 
-export default function Matching({ data }) {
+export default function Matching({ data, onComplete }) {
   const [leftItems, setLeftItems] = useState([]);
   const [rightItems, setRightItems] = useState([]);
   const [selectedLeft, setSelectedLeft] = useState(null);
@@ -9,12 +9,17 @@ export default function Matching({ data }) {
 
   useEffect(() => {
     if (data.pairs) {
-      // Xáo trộn cột trái (Tiếng Trung)
       setLeftItems([...data.pairs].sort(() => Math.random() - 0.5));
-      // Xáo trộn cột phải (Tiếng Việt)
       setRightItems([...data.pairs].sort(() => Math.random() - 0.5));
     }
   }, [data]);
+
+  useEffect(() => {
+    if (onComplete && data.pairs && solved.length === data.pairs.length) {
+      const t = setTimeout(() => onComplete(true), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [solved.length, data.pairs, onComplete]);
 
   const handleMatch = (rightItem) => {
     if (!selectedLeft) return;

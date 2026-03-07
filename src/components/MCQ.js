@@ -1,16 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function MCQ({ data }) {
+export default function MCQ({ data, onComplete }) {
   const [selected, setSelected] = useState(null);
   const [showResult, setShowResult] = useState(false);
 
   // Kiểm tra dữ liệu an toàn
   if (!data || !data.options) return null;
 
-  const isCorrect = selected === data.answer;
+  const correctOption = data.options.find(
+    (opt) => opt === data.answer || String(opt).startsWith(data.answer + '.') || String(opt).startsWith(data.answer + ' ')
+  ) ?? data.options[0];
+  const isCorrect = selected === correctOption;
+
+  useEffect(() => {
+    if (!showResult || !onComplete) return;
+    const t = setTimeout(() => onComplete(isCorrect), 1500);
+    return () => clearTimeout(t);
+  }, [showResult, isCorrect, onComplete]);
 
   const handleSelect = (option) => {
-    if (showResult) return; // Không cho chọn lại sau khi đã hiện kết quả
+    if (showResult) return;
     setSelected(option);
     setShowResult(true);
   };
@@ -24,7 +33,7 @@ export default function MCQ({ data }) {
       <div className="grid gap-3">
         {/* Đổi từ data.choices thành data.options */}
         {data.options.map((option, index) => {
-          const isAnswer = option === data.answer;
+          const isAnswer = option === correctOption;
           const isUserSelected = selected === option;
 
           return (
@@ -64,7 +73,7 @@ export default function MCQ({ data }) {
             {isCorrect ? "✨ Tuyệt vời! Chính xác." : "🔍 Đừng buồn, thử lại lần sau nhé!"}
           </p>
           {!isCorrect && (
-            <p className="text-sm mt-1">Đáp án đúng: <span className="underline">{data.answer}</span></p>
+            <p className="text-sm mt-1">Đáp án đúng: <span className="underline">{correctOption}</span></p>
           )}
         </div>
       )}

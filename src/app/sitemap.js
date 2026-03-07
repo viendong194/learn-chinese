@@ -29,6 +29,12 @@ export default async function sitemap() {
       priority: 0.9,
     },
     {
+      url: `${BASE_URL}/vocab/practice`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
       url: `${BASE_URL}/contact`,
       lastModified: new Date(),
       changeFrequency: 'yearly',

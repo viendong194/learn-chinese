@@ -319,22 +319,30 @@ export default function VocabClientPage({ levels, vocab }) {
           </div>
         )}
 
-        {/* Tab: Học thẻ | Luyện viết */}
-        <div className="flex rounded-xl bg-gray-100 p-1 mb-6">
-          <button
-            type="button"
-            onClick={() => setMode('cards')}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'cards' ? 'bg-white text-orange-600 shadow' : 'text-gray-600'}`}
+        {/* Tab: Học thẻ | Luyện viết | Luyện tập */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex flex-1 rounded-xl bg-gray-100 p-1">
+            <button
+              type="button"
+              onClick={() => setMode('cards')}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'cards' ? 'bg-white text-orange-600 shadow' : 'text-gray-600'}`}
+            >
+              Học thẻ
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('writing')}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'writing' ? 'bg-white text-orange-600 shadow' : 'text-gray-600'}`}
+            >
+              Luyện viết
+            </button>
+          </div>
+          <Link
+            href="/vocab/practice"
+            className="shrink-0 py-2.5 px-4 rounded-xl bg-orange-100 text-orange-600 text-sm font-bold hover:bg-orange-200 transition"
           >
-            Học thẻ
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('writing')}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'writing' ? 'bg-white text-orange-600 shadow' : 'text-gray-600'}`}
-          >
-            Luyện viết
-          </button>
+            Luyện tập
+          </Link>
         </div>
 
         {/* Learned filter + count */}
